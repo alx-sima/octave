@@ -1,0 +1,1 @@
+set args < test1.in
