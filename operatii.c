@@ -1,129 +1,104 @@
+// Copyright Sima Alexandru 312CA 2022-2023
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "alocare.h"
+#include "alocari.h"
 #include "operatii.h"
 #include "utils.h"
 
-void op_adaugare_matrice(int ****mat, struct dimensiune **dim, int *nr)
+void printare_matrice(int **mat, int n, int m)
 {
-	int n, m;
-	scanf("%d%d", &n, &m);
-
-	int **a = citire_matrice(n, m);
-	if (a == NULL) {
-		// TODO
-	}
-	inserare_mat(mat, dim, nr, a, n, m);
-}
-
-void op_afisare_dimensiuni(struct dimensiune *dim, int nr)
-{
-	int index;
-	scanf("%d", &index);
-	if (index >= nr) {
-		printf("No matrix with the given index\n");
-		return;
-	}
-
-	printf("%d %d\n", dim[index].lin, dim[index].col);
-}
-
-void op_afisare_matrice(int ***mat, struct dimensiune *dim, int nr)
-{
-	int index;
-	scanf("%d", &index);
-
-	if (index >= nr) {
-		printf("No matrix with the given index\n");
-		return;
-	}
-
-	for (int i = 0; i < dim[index].lin; ++i) {
-		for (int j = 0; j < dim[index].col; ++j) {
-			printf("%d ", mat[index][i][j]);
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < m; ++j) {
+			printf("%d ", mat[i][j]);
 		}
 		printf("\n");
 	}
 }
 
-void op_redimensionare_matrice(int ***matrice, struct dimensiune *dim, int nr)
+int **identitate(int n)
 {
-	int index, l, c;
-	scanf("%d", &index);
-	if (index >= nr) {
-		printf("No matrix with the given index\n");
+	int **a = alocare_matrice(n, n);
+	if (a == NULL) {
+		return NULL;
 	}
 
-	scanf("%d", &l);
-	int *linii = (int *)malloc(l * sizeof(int));
-	if (linii == NULL) {
-		// TODO:
-		return;
-	}
-	for (int i = 0; i < l; ++i) {
-		scanf("%d", &linii[i]);
-	}
-	scanf("%d", &c);
-	int *coloane = (int *)malloc(c * sizeof(int));
-	if (coloane == NULL) {
-		// TODO:
-		free(linii);
-		return;
-	}
-
-	for (int i = 0; i < c; ++i) {
-		scanf("%d", &coloane[i]);
-	}
-
-	for (int i = 0; i < l; ++i) {
-		for (int j = 0; j < c; ++j) {
-
-			int srci = linii[i];
-			int srcj = coloane[j];
-
-			// TODO: while?
-			if (srci < i || (srci == srcj && srcj < j)) {
-				srci = linii[srci];
-				srcj = coloane[srcj];
-			}
-			interschimba(&matrice[index][i][j], &matrice[index][srci][srcj]);
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			// A(i,j) = 1 <=> i = j
+			a[i][j] = (i == j);
 		}
 	}
-	micsorare_matrice(&matrice[index], dim[index].lin, l, c);
-	dim[index].lin = l;
-	dim[index].col = c;
-	free(linii);
-	free(coloane);
+
+	return a;
 }
 
-void op_inmultire_matrice(int ****mat, struct dimensiune **dim, int *nr)
+int insumare_elemente(int **a, int n, int m)
 {
-	int x, y;
-	scanf("%d%d", &x, &y);
-	if (x >= *nr || y >= *nr) {
-		printf("No matrix with the given index\n");
-		return;
+	int s = 0;
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < m; ++j) {
+			s = modulo(s + a[i][j]);
+		}
 	}
-
-	if ((*dim)[x].col != (*dim)[y].lin) {
-		printf("Cannot perform matrix multiplication\n");
-		return;
-	}
-
-	int **c = prod_matrice((*mat)[x], (*mat)[y], (*dim)[x].lin, (*dim)[x].col,
-						   (*dim)[y].col);
-	if (c == NULL) {} // TODO:
-	inserare_mat(mat, dim, nr, c, (*dim)[x].lin, (*dim)[y].col);
+	return s;
 }
 
-void op_sortare_matrice(int ***mat, struct dimensiune *dim, int nr) {}
-
-void op_eliberare_resurse(int ***mat, struct dimensiune *dim, int nr)
+// Inmulteste matricea a (nxm) cu b (mxo) in
+// matricea c (nxo), pe care o aloca.
+int **prod_matrice(int **a, int **b, int n, int m, int o)
 {
-	for (int i = 0; i < nr; ++i) {
-		eliberare_matrice(mat[i], dim[i].lin);
+	int **c = alocare_matrice(n, o);
+	if (c == NULL) {
+		return NULL;
 	}
-	free(mat);
-	free(dim);
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < o; ++j) {
+			long x = 0;
+			for (int k = 0; k < m; ++k) {
+				x = modulo(x + modulo((long)a[i][k] * b[k][j]));
+			}
+			c[i][j] = modulo(x);
+		}
+	}
+
+	return c;
+}
+
+int **exp_matrice(int **x, int n, int k)
+{
+	if (k == 0) {
+		return x;
+	}
+
+	int **y, **aux;
+	y = identitate(n);
+	while (k > 1) {
+		if (k % 2 == 0) {
+			aux = prod_matrice(x, x, n, n, n);
+			eliberare_matrice(x, n);
+			x = aux;
+			// mutare_matrice(x, aux, n, n);
+			k /= 2;
+		} else {
+			aux = prod_matrice(x, y, n, n, n);
+			eliberare_matrice(y, n);
+			y = aux;
+			// mutare_matrice(y, aux, n, n);
+
+			aux = prod_matrice(x, x, n, n, n);
+			eliberare_matrice(x, n);
+			x = aux;
+			// mutare_matrice(x, aux, n, n);
+			k = (k - 1) / 2;
+		}
+	}
+
+	aux = prod_matrice(x, y, n, n, n);
+	eliberare_matrice(x, n);
+	eliberare_matrice(y, n);
+
+	return aux;
 }

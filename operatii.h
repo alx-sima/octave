@@ -1,21 +1,21 @@
 // Copyright Sima Alexandru 312CA 2022-2023
 
-#ifndef _OPERATII_H
-#define _OPERATII_H
+#ifndef OPERATII_H
+#define OPERATII_H
 
-// FIXME:
-struct dimensiune {
-	int lin;
-	int col;
-};
+// Afiseaza elementele matricei `a`.
+void printare_matrice(int **a, int n, int m);
 
-void op_adaugare_matrice(int ****mat, struct dimensiune **dim, int *nr);
-void op_afisare_dimensiuni(struct dimensiune *dim, int nr);
-void op_afisare_matrice(int ***mat, struct dimensiune *dim, int nr);
-void op_redimensionare_matrice(int ***matrice, struct dimensiune *dim, int nr);
-void op_inmultire_matrice(int ****mat, struct dimensiune **dim, int *nr);
-void op_sortare_matrice(int ***mat, struct dimensiune *dim, int nr);
-void op_exp_matrice(int ***mat, struct dimensiune *dim, int nr);
-void op_eliberare_resurse(int ***mat, struct dimensiune *dim, int nr);
+// Aloca si intoarce matricea `In`.
+int **identitate(int n);
 
-#endif // _OPERATII_H
+// Calculeaza suma elementelor din matricea `a`.
+int insumare_elemente(int **a, int n, int m);
+
+// Calculeaza produsul a 2 matrice `a` (n x m) si `b` (m x o).
+int **prod_matrice(int **a, int **b, int n, int m, int o);
+
+// Calculeaza X^k.
+int **exp_matrice(int **x, int n, int k);
+
+#endif // OPERATII_H

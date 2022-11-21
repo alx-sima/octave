@@ -1,1 +1,1 @@
-set args < test1.in
+set args < exemplu.in
