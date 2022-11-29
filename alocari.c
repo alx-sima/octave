@@ -1,5 +1,6 @@
 // Copyright Sima Alexandru 312CA 2022-2023
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "alocari.h"
@@ -67,12 +68,8 @@ void redimensionare_matrice(int ***mat, int n_vechi, int n, int m)
 	}
 }
 
-void modif_nr_matrice(int ****mat, int **lin, int **col, int nr_vechi, int nr)
+void modif_nr_matrice(int ****mat, int **lin, int **col, int nr)
 {
-	// Se elibereaza matricele in plus (daca exista).
-	for (int i = nr; i < nr_vechi; ++i)
-		eliberare_matrice((*mat)[i], (*lin)[i]);
-
 	// struct dimensiune *dimensiuni_vechi = *lin;
 	*lin = (int *)realloc(*lin, nr * sizeof(int));
 	*col = (int *)realloc(*col, nr * sizeof(int));
@@ -90,10 +87,10 @@ void modif_nr_matrice(int ****mat, int **lin, int **col, int nr_vechi, int nr)
 void inserare_mat(int ****mat, int **lin, int **col, int nr, int **a, int n,
 				  int m)
 {
-	modif_nr_matrice(mat, lin, col, nr, nr + 1);
+	modif_nr_matrice(mat, lin, col, nr + 1);
 	if (*mat) {
+		(*mat)[nr] = a;
 		(*lin)[nr] = n;
 		(*col)[nr] = m;
-		(*mat)[nr] = a;
 	}
 }

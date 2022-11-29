@@ -45,8 +45,7 @@ void cmd_adaugare_matrice(int ****mat, int **lin, int **col, int *nr)
 	// TODO
 	// if (!a) {}
 
-	inserare_mat(mat, lin, col, *nr, a, n, m);
-	++(*nr);
+	inserare_mat(mat, lin, col, (*nr)++, a, n, m);
 }
 
 void cmd_afisare_dimensiuni(int *lin, int *col, int nr)
@@ -111,8 +110,7 @@ void cmd_inmultire_matrice(int ****mat, int **lin, int **col, int *nr)
 		prod_matrice((*mat)[x], (*mat)[y], (*lin)[x], (*col)[x], (*col)[y]);
 	// TODO:
 	// if (!c) {}
-	inserare_mat(mat, lin, col, *nr, c, (*lin)[x], (*col)[y]);
-	++(*nr);
+	inserare_mat(mat, lin, col, (*nr)++, c, (*lin)[x], (*col)[y]);
 }
 
 void cmd_sortare_matrice(int ***mat, int *lin, int *col, int nr)
@@ -194,11 +192,14 @@ void cmd_stergere_matrice(int ****mat, int **lin, int **col, int *nr)
 	if (index == -1)
 		return;
 
-	for (int i = index; i < *nr - 1; ++i)
-		(*mat)[i] = (*mat)[i + 1];
+	eliberare_matrice((*mat)[index], (*lin)[index]);
 
-	modif_nr_matrice(mat, lin, col, *nr, *nr - 1);
-	--(*nr);
+	for (int i = index; i < *nr - 1; ++i) {
+		(*mat)[i] = (*mat)[i + 1];
+		(*lin)[i] = (*lin)[i + 1];
+		(*col)[i] = (*col)[i + 1];
+	}
+	modif_nr_matrice(mat, lin, col, --(*nr));
 }
 
 void cmd_eliberare_resurse(int ***mat, int *lin, int *col, int nr)

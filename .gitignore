@@ -5,6 +5,7 @@
 /cs
 /tasks
 check
+.check.grade
 
 .gdbinit
 vgcore.*
