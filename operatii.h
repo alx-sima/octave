@@ -14,10 +14,14 @@ int **identitate(int n);
 // Calculeaza suma elementelor din matricea `a`.
 int insumare_elemente(int **a, int n, int m);
 
-// Calculeaza produsul a 2 matrice `a` (n x m) si `b` (m x o).
+// Calculeaza produsul a 2 matrice `a` (nxm) si `b` (mxo).
 int **prod_matrice(int **a, int **b, int n, int m, int o);
 
 // Calculeaza X^k.
 int **exp_matrice(int **x, int n, int k);
+
+// Calculeaza produsul a 2 matrice patratice `a` si `b` de
+// dimensiune `n`, aplicand recursiv algoritmul lui Strassen.
+int **prod_strassen(int **a, int **b, int n);
 
 #endif // OPERATII_H

@@ -13,6 +13,7 @@ void eliberare_matrice(int **mat, int n);
 
 void modif_nr_matrice(int ****mat, int **lin, int **col, int nr);
 
+// Adauga `a` (`n` x `m`) la finalul listei de matrice.
 void inserare_mat(int ****mat, int **lin, int **col, int nr, int **a, int n,
 				  int m);
 
