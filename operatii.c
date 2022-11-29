@@ -48,12 +48,12 @@ int **identitate(int n)
 
 int insumare_elemente(int **a, int n, int m)
 {
-	int s = 0;
+	long s = 0;
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m; ++j)
 			s = modulo(s + a[i][j]);
 	}
-	return s;
+	return (int)s;
 }
 
 int **prod_matrice(int **a, int **b, int n, int m, int o)

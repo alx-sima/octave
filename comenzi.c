@@ -8,12 +8,17 @@
 #include "operatii.h"
 #include "utils.h"
 
+static int validare_index(int i, int n)
+{
+	return i >= 0 && i < n;
+}
+
 static int citire_index(int n)
 {
 	int index;
 	scanf("%d", &index);
 
-	if (index >= n) {
+	if (!validare_index(index, n)) {
 		printf("No matrix with the given index\n");
 		return -1;
 	}
@@ -23,7 +28,7 @@ static int citire_index(int n)
 static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b)
 {
 	scanf("%d%d", a, b);
-	if (*a >= n || *b >= n) {
+	if (!(validare_index(*a, n) && validare_index(*b, n))) {
 		printf("No matrix with the given index\n");
 		return 0;
 	}
@@ -64,11 +69,10 @@ void cmd_afisare_matrice(int ***mat, int *lin, int *col, int nr)
 
 void cmd_redimensionare_matrice(int ***matrice, int *lin, int *col, int nr)
 {
-	int index = citire_index(nr);
-	if (index == -1)
-		return;
-
 	int l, c;
+	int index;
+	index = citire_index(nr);
+
 	scanf("%d", &l);
 	int *linii = (int *)malloc(l * sizeof(int));
 	// TODO:
@@ -89,6 +93,12 @@ void cmd_redimensionare_matrice(int ***matrice, int *lin, int *col, int nr)
 	for (int i = 0; i < c; ++i)
 		scanf("%d", &coloane[i]);
 
+	if (index == -1) {
+		// TODO:
+		free(linii);
+		free(coloane);
+		return;
+	}
 	int **aux = partitionare_matrice(matrice[index], linii, coloane, l, c);
 	// TODO
 	// if (!aux) {}
@@ -123,21 +133,18 @@ void cmd_sortare_matrice(int ***mat, int *lin, int *col, int nr)
 	for (int i = 0; i < nr; ++i)
 		sume[i] = insumare_elemente(mat[i], lin[i], col[i]);
 
-	int schimbare;
-	do {
-		schimbare = 0;
-		for (int i = 0; i < nr - 1; ++i) {
-			if (sume[i] > sume[i + 1]) {
-				interschimba(&lin[i], &lin[i + 1]);
-				interschimba(&col[i], &col[i + 1]);
-				interschimba(&sume[i], &sume[i + 1]);
+	for (int i = 0; i < nr - 1; ++i) {
+		for (int j = i + 1; j < nr; ++j) {
+			if (sume[i] > sume[j]) {
+				interschimba(&lin[i], &lin[j]);
+				interschimba(&col[i], &col[j]);
+				interschimba(&sume[i], &sume[j]);
 				int **aux = mat[i];
-				mat[i] = mat[i + 1];
-				mat[i + 1] = aux;
-				schimbare = 1;
+				mat[i] = mat[j];
+				mat[j] = aux;
 			}
 		}
-	} while (schimbare);
+	}
 
 	free(sume);
 }
@@ -166,14 +173,15 @@ void cmd_transpunere_matrice(int ***mat, int *lin, int *col, int nr)
 
 void cmd_exp_matrice(int ***mat, int *lin, int *col, int nr)
 {
-	int index = citire_index(nr);
+	int index, exp;
+	index = citire_index(nr);
+	scanf("%d", &exp);
+
 	if (index == -1)
 		return;
 
-	int exp;
-	scanf("%d", &exp);
 	if (exp < 0) {
-		printf("Power should pe positive\n");
+		printf("Power should be positive\n");
 		return;
 	}
 
