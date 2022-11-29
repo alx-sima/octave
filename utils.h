@@ -5,7 +5,6 @@
 
 #define NR_MOD 10007
 
-int max(int a, int b);
 void interschimba(int *a, int *b);
 int **citire_matrice(int n, int m);
 

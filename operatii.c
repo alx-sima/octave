@@ -10,19 +10,31 @@
 void printare_matrice(int **mat, int n, int m)
 {
 	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < m; ++j) {
+		for (int j = 0; j < m; ++j)
 			printf("%d ", mat[i][j]);
-		}
 		printf("\n");
 	}
+}
+
+int **partitionare_matrice(int **mat, int *lin, int *col, int nrlin, int nrcol)
+{
+	int **rez = alocare_matrice(nrlin, nrcol);
+	if (!rez)
+		return NULL;
+
+	for (int i = 0; i < nrlin; ++i) {
+		for (int j = 0; j < nrcol; ++j)
+			rez[i][j] = mat[lin[i]][col[j]];
+	}
+
+	return rez;
 }
 
 int **identitate(int n)
 {
 	int **a = alocare_matrice(n, n);
-	if (a == NULL) {
+	if (!a)
 		return NULL;
-	}
 
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < n; ++j) {
@@ -38,28 +50,23 @@ int insumare_elemente(int **a, int n, int m)
 {
 	int s = 0;
 	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < m; ++j) {
+		for (int j = 0; j < m; ++j)
 			s = modulo(s + a[i][j]);
-		}
 	}
 	return s;
 }
 
-// Inmulteste matricea a (nxm) cu b (mxo) in
-// matricea c (nxo), pe care o aloca.
 int **prod_matrice(int **a, int **b, int n, int m, int o)
 {
 	int **c = alocare_matrice(n, o);
-	if (c == NULL) {
+	if (!c)
 		return NULL;
-	}
 
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < o; ++j) {
 			long x = 0;
-			for (int k = 0; k < m; ++k) {
+			for (int k = 0; k < m; ++k)
 				x = modulo(x + modulo((long)a[i][k] * b[k][j]));
-			}
 			c[i][j] = modulo(x);
 		}
 	}
@@ -69,9 +76,8 @@ int **prod_matrice(int **a, int **b, int n, int m, int o)
 
 int **exp_matrice(int **x, int n, int k)
 {
-	if (k == 0) {
+	if (k == 0)
 		return x;
-	}
 
 	int **y, **aux;
 	y = identitate(n);
@@ -80,18 +86,15 @@ int **exp_matrice(int **x, int n, int k)
 			aux = prod_matrice(x, x, n, n, n);
 			eliberare_matrice(x, n);
 			x = aux;
-			// mutare_matrice(x, aux, n, n);
 			k /= 2;
 		} else {
 			aux = prod_matrice(x, y, n, n, n);
 			eliberare_matrice(y, n);
 			y = aux;
-			// mutare_matrice(y, aux, n, n);
 
 			aux = prod_matrice(x, x, n, n, n);
 			eliberare_matrice(x, n);
 			x = aux;
-			// mutare_matrice(x, aux, n, n);
 			k = (k - 1) / 2;
 		}
 	}

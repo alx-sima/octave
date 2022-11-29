@@ -11,12 +11,12 @@ my_octave: $(OBJS)
 	$(CC) $(CFLAGS) -o my_octave $^
 
 clean:
-	rm -f my_octave *.o vgcore.*
+	-rm -f my_octave *.o vgcore.*
 
 pack:
 	zip -FSr 312CA_SimaAlexandru_Tema2.zip README Makefile *.c *.h
 
 apara-ma-doamne: my_octave
-	valgrind --track-origins=yes --leak-check=full ./my_octave < exemplu.in
+	valgrind -s --track-origins=yes --leak-check=full ./my_octave < exemplu.in
 
 .PHONY: pack clean apara-ma-doamne

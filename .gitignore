@@ -1,5 +1,12 @@
 /.idea
 
-my_octave
+# Fisierele checkerului
+/check_utils
+/cs
+/tasks
+check
+
+.gdbinit
 vgcore.*
 *.o
+my_octave
