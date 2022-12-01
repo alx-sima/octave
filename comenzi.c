@@ -54,7 +54,11 @@ void cmd_adaugare_matrice(int ****mat, int **lin, int **col, int *nr)
 	// TODO
 	// if (!a) {}
 
-	inserare_mat(mat, lin, col, (*nr)++, a, n, m);
+	int ***mat_nou = inserare_mat(*mat, lin, col, nr, a, n, m);
+	if (!mat_nou)
+		return; // TODO
+
+	*mat = mat_nou;
 }
 
 void cmd_afisare_dimensiuni(int *lin, int *col, int nr)
@@ -103,6 +107,7 @@ void cmd_redimensionare_matrice(int ***matrice, int *lin, int *col, int nr)
 		free(coloane);
 		return;
 	}
+
 	int **aux = partitionare_matrice(matrice[index], linii, coloane, l, c);
 	// TODO
 	// if (!aux) {}
@@ -122,9 +127,10 @@ void cmd_inmultire_matrice(int ****mat, int **lin, int **col, int *nr)
 
 	int **c =
 		prod_matrice((*mat)[x], (*mat)[y], (*lin)[x], (*col)[x], (*col)[y]);
-	// TODO:
 	// if (!c) {}
-	inserare_mat(mat, lin, col, (*nr)++, c, (*lin)[x], (*col)[y]);
+	int ***mat_nou = inserare_mat(*mat, lin, col, nr, c, (*lin)[x], (*col)[y]);
+	// if (!mat_nou) {}
+	*mat = mat_nou;
 }
 
 void cmd_sortare_matrice(int ***mat, int *lin, int *col, int nr)
@@ -211,11 +217,18 @@ void cmd_stergere_matrice(int ****mat, int **lin, int **col, int *nr)
 		(*lin)[i] = (*lin)[i + 1];
 		(*col)[i] = (*col)[i + 1];
 	}
-	modif_nr_matrice(mat, lin, col, --(*nr));
+	int ***mat_nou = stergere_mat(*mat, lin, col, nr);
+	// if (!mat_nou) {return;}
+	*mat = mat_nou;
 }
 
 void cmd_eliberare_resurse(int ***mat, int *lin, int *col, int nr)
 {
+	// Daca nu exista nicio matrice, toate
+	// resursele au fost deja dealocate.
+	if (!nr)
+		return;
+
 	for (int i = 0; i < nr; ++i)
 		eliberare_matrice(mat[i], lin[i]);
 
@@ -234,5 +247,8 @@ void cmd_produs_strassen(int ****mat, int **lin, int **col, int *nr)
 	// TODO
 	if (!rez)
 		return;
-	inserare_mat(mat, lin, col, (*nr)++, rez, (*lin)[x], (*lin)[x]);
+	int ***mat_nou =
+		inserare_mat(*mat, lin, col, nr, rez, (*lin)[x], (*lin)[x]);
+	// if (!mat_nou) {}
+	*mat = mat_nou;
 }

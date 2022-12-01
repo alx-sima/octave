@@ -3,18 +3,21 @@
 #ifndef ALOCARI_H
 #define ALOCARI_H
 
-// Aloca o matrice `(n x m)`.
+// Aloca o matrice `n X m`.
 int **alocare_matrice(int n, int m);
-
-void eliberare_vector_matrice(int **mat[], int nr, int n);
 
 // Dealoca matricea `mat` de `n` linii.
 void eliberare_matrice(int **mat, int n);
 
-void modif_nr_matrice(int ****mat, int **lin, int **col, int nr);
+// Dealoca `nr` matrice de `n` linii din `mat`.
+void eliberare_vector_matrice(int **mat[], int nr, int n);
 
-// Adauga `a` (`n` x `m`) la finalul listei de matrice.
-void inserare_mat(int ****mat, int **lin, int **col, int nr, int **a, int n,
-				  int m);
+// Adauga matricea `a`, de dimensiuni `n X m` la finalul listei de matrice.
+int ***inserare_mat(int ***mat, int **lin, int **col, int *nr, int **a, int n,
+					int m);
+
+// Sterge matricea de la finalul listei de matrice `mat`,
+// apoi returneaza noua lista (sau NULL daca a intervenit o eroare).
+int ***stergere_mat(int ***mat, int **lin, int **col, int *nr);
 
 #endif // ALOCARI_H
