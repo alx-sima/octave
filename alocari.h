@@ -8,7 +8,7 @@ int **alocare_matrice(int n, int m);
 
 void eliberare_vector_matrice(int **mat[], int nr, int n);
 
-// Dealoca matricea de `mat` de `n` linii.
+// Dealoca matricea `mat` de `n` linii.
 void eliberare_matrice(int **mat, int n);
 
 void modif_nr_matrice(int ****mat, int **lin, int **col, int nr);

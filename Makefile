@@ -11,7 +11,7 @@ my_octave: $(OBJS)
 	$(CC) $(CFLAGS) -o my_octave $^
 
 clean:
-	-rm -f my_octave *.o vgcore.*
+	-rm -f my_octave $(OBJS) vgcore.*
 
 pack:
 	zip -FSr 312CA_SimaAlexandru_Tema2.zip README Makefile *.c *.h

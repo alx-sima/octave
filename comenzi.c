@@ -8,7 +8,8 @@
 #include "operatii.h"
 #include "utils.h"
 
-static int validare_index(int i, int n)
+// Verifica daca indicele `i` este valid (apartine `[0, n)`).
+static int e_index_valid(int i, int n)
 {
 	return i >= 0 && i < n;
 }
@@ -18,17 +19,19 @@ static int citire_index(int n)
 	int index;
 	scanf("%d", &index);
 
-	if (!validare_index(index, n)) {
-		printf("No matrix with the given index\n");
-		return -1;
-	}
-	return index;
+	if (e_index_valid(index, n))
+		return index;
+	printf("No matrix with the given index\n");
+	return -1;
 }
 
+// Citeste 2 indecsi de matrice de la tastatura, apoi verifica daca sunt valizi
+// si daca cele 2 matrice pot fi inmultite (nr. de linii al primeia = nr. de
+// coloane ale celei de a 2-a).
 static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b)
 {
 	scanf("%d%d", a, b);
-	if (!(validare_index(*a, n) && validare_index(*b, n))) {
+	if (!(e_index_valid(*a, n) && e_index_valid(*b, n))) {
 		printf("No matrix with the given index\n");
 		return 0;
 	}

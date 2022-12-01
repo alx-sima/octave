@@ -7,6 +7,23 @@
 #include "operatii.h"
 #include "utils.h"
 
+// Aloca si intoarce matricea `In`.
+static int **identitate(int n)
+{
+	int **a = alocare_matrice(n, n);
+	if (!a)
+		return NULL;
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			// A(i,j) = 1 <=> i = j
+			a[i][j] = (i == j);
+		}
+	}
+
+	return a;
+}
+
 void printare_matrice(int **mat, int n, int m)
 {
 	for (int i = 0; i < n; ++i) {
@@ -28,22 +45,6 @@ int **partitionare_matrice(int **mat, int *lin, int *col, int nrlin, int nrcol)
 	}
 
 	return rez;
-}
-
-int **identitate(int n)
-{
-	int **a = alocare_matrice(n, n);
-	if (!a)
-		return NULL;
-
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			// A(i,j) = 1 <=> i = j
-			a[i][j] = (i == j);
-		}
-	}
-
-	return a;
 }
 
 int insumare_elemente(int **a, int n, int m)
@@ -81,6 +82,9 @@ int **exp_matrice(int **x, int n, int k)
 
 	int **y, **aux;
 	y = identitate(n);
+	if (!y)
+		return NULL; // TODO
+
 	while (k > 1) {
 		if (k % 2 == 0) {
 			aux = prod_matrice(x, x, n, n, n);
@@ -106,26 +110,44 @@ int **exp_matrice(int **x, int n, int k)
 	return aux;
 }
 
-int **sum(int **a, int **b, int n)
+// Calculeaza matricea C, unde Cij = Aij + semn*Bij, adica:
+// - `C = A + B`, daca `semn = +1`;
+// - `C = A - B`, daca `semn = -1`;
+static int **adunare_matrice(int **a, int **b, int n, int semn)
 {
 	int **c = alocare_matrice(n, n);
 
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < n; ++j)
-			c[i][j] = modulo((long)a[i][j] + b[i][j]);
+			c[i][j] = modulo((long)a[i][j] + semn * b[i][j]);
 	}
 	return c;
 }
 
-int **diff(int **a, int **b, int n)
+static int impartire_cadrane(int **cadrane[4], int **a, int n)
 {
-	int **c = alocare_matrice(n, n);
+	int *temp = (int *)malloc(n * 2 * sizeof(int));
+	if (!temp)
+		return 0;
 
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j)
-			c[i][j] = modulo(a[i][j] - b[i][j]);
+	for (int i = 0; i < n * 2; ++i)
+		temp[i] = i;
+
+	// !!! Doamne-ajuta !!!
+	// ? Codul nu are nevoie de documentatie, codul este documentatia
+	// ? Daca merge, merge
+	for (int i = 0; i < 4; ++i) {
+		cadrane[i] = partitionare_matrice(a, temp + (i >> 1 & 1) * n,
+										  temp + (i & 1) * n, n, n);
+		if (!cadrane[i]) {
+			eliberare_vector_matrice(cadrane, i, n);
+			free(temp);
+			return 0;
+		}
 	}
-	return c;
+
+	free(temp);
+	return 1;
 }
 
 int **reconstituire_matrice(int **c[4], int n)
@@ -147,78 +169,80 @@ int **reconstituire_matrice(int **c[4], int n)
 	return a;
 }
 
+// TODO comenteaza
+// Genereaza in `rez` sume de elemente din `v`, in functie de modelul din `st`,
+// `dr` si `semn`. Astfel rez[i] va contine
+void gen_sume_part(int **rez[], int **v[], int n, const char st[],
+				   const char dr[], const char semn[])
+{
+	for (int i = 0; st[i]; ++i)
+		rez[i] = adunare_matrice(v[st[i] - '0'], v[dr[i] - '0'], n,
+								 semn[i] == '+' ? 1 : -1);
+}
+
+void gen_prod_part(int **rez[], int **s_part_a[], int **s_part_b[],
+				   int **cadrane_a[], int **cadrane_b[], int n)
+{
+	int **factori_st[] = {
+		s_part_a[0], s_part_a[1], cadrane_a[0], cadrane_a[3],
+		s_part_a[2], s_part_a[3], s_part_a[4],
+	};
+	int **factori_dr[] = {
+		s_part_b[0],  cadrane_b[0], s_part_b[1], s_part_b[2],
+		cadrane_b[3], s_part_b[3],	s_part_b[4],
+	};
+
+	const int nr_mat_ajut = sizeof(factori_st) / sizeof(factori_st[0]);
+	for (int i = 0; i < nr_mat_ajut; ++i) {
+		rez[i] = prod_strassen(factori_st[i], factori_dr[i], n);
+		if (!rez[i]) {
+			eliberare_vector_matrice(rez, i, n);
+			return;
+		}
+	}
+}
+
 int **prod_strassen(int **a, int **b, int n)
 {
-	// TODO
+	// Daca `a` si `b` au devenit 1x1, produsul lor
+	// se face inmultind cele 2 numere.
 	if (n == 1) {
 		int **rez = alocare_matrice(1, 1);
-		rez[0][0] = a[0][0] * b[0][0];
+		if (rez)
+			rez[0][0] = a[0][0] * b[0][0];
 		return rez;
 	}
-	int *temp = (int *)malloc(n * sizeof(int));
-	if (!temp)
-		return NULL;
 
-	for (int i = 0; i < n; ++i)
-		temp[i] = i;
 	n /= 2;
-	int **part_a[4];
-	int **part_b[4];
+	int **cadrane_a[4];
+	int **cadrane_b[4];
 
-	for (int i = 0; i < 4; ++i) {
-		// !!! Doamne-ajuta !!!
-		// ? Codul nu are nevoie de documentatie, codul este documentatia
-		// ? Daca merge, merge
-		part_a[i] = partitionare_matrice(a, temp + (i >> 1 & 1) * n,
-										 temp + (i & 1) * n, n, n);
-		part_b[i] = partitionare_matrice(b, temp + (i >> 1 & 1) * n,
-										 temp + (i & 1) * n, n, n);
-	}
-	free(temp);
+	// TODO error checking
+	impartire_cadrane(cadrane_a, a, n);
+	impartire_cadrane(cadrane_b, b, n);
 
-	int **sume_part_a[5] = {
-		sum(part_a[0], part_a[3], n), sum(part_a[2], part_a[3], n),
-		sum(part_a[0], part_a[1], n), diff(part_a[2], part_a[0], n),
-		diff(part_a[1], part_a[3], n)};
+	int **s_part_a[5];
+	int **s_part_b[5];
+	gen_sume_part(s_part_a, cadrane_a, n, "02021", "33103", "+++--");
+	gen_sume_part(s_part_b, cadrane_b, n, "01202", "33013", "+--++");
 
-	int **sume_part_b[5] = {
-		sum(part_b[0], part_b[3], n), diff(part_b[1], part_b[3], n),
-		diff(part_b[2], part_b[0], n), sum(part_b[0], part_b[1], n),
-		sum(part_b[2], part_b[3], n)};
+	int **m[7];
+	gen_prod_part(m, s_part_a, s_part_b, cadrane_a, cadrane_b, n);
 
-	// Se calculeaza cele 7 matrice ajutatoare,
-	// conform formulelor algoritmului
-	int **m[7] = {
-		prod_strassen(sume_part_a[0], sume_part_b[0],
-					  n), // M0 = (A1 + A4)(B1 + B4) = S_A0 * S_B0
-		prod_strassen(sume_part_a[1], part_b[0],
-					  n), // M1 = (A3 + A4)B1 = S_A1 * B1
-		prod_strassen(part_a[0], sume_part_b[1],
-					  n), // M2 = A1(B2 - B4) = A1 * S_B1
-		prod_strassen(part_a[3], sume_part_b[2],
-					  n), // M3 = A4(B3 - B1) = A4 * S_B2
-		prod_strassen(sume_part_a[2], part_b[3],
-					  n), // M4 = (A1+A2)B4 = S_A2 * B4
-		prod_strassen(sume_part_a[3], sume_part_b[3],
-					  n), // M5 = (A3 - A1)(B1 + B2) = S_A3 * S_B3
-		prod_strassen(sume_part_a[4], sume_part_b[4],
-					  n), // M6 = (A2 - A4)(B3 + B4) = S_A4 * S_B4
-	};
-	eliberare_vector_matrice(part_a, 4, n);
-	eliberare_vector_matrice(part_b, 4, n);
-	eliberare_vector_matrice(sume_part_a, 5, n);
-	eliberare_vector_matrice(sume_part_b, 5, n);
-
-	int **c_part[4] = {sum(m[0], m[3], n), diff(m[6], m[4], n),
-					   diff(m[0], m[1], n), sum(m[2], m[5], n)};
+	int **c_part[4];
+	gen_sume_part(c_part, m, n, "0602", "3415", "+--+");
 
 	int **c[4] = {
-		sum(c_part[0], c_part[1], n),
-		sum(m[2], m[4], n),
-		sum(m[1], m[3], n),
-		sum(c_part[2], c_part[3], n),
+		adunare_matrice(c_part[0], c_part[1], n, 1),
+		adunare_matrice(m[2], m[4], n, 1),
+		adunare_matrice(m[1], m[3], n, 1),
+		adunare_matrice(c_part[2], c_part[3], n, 1),
 	};
 
+	eliberare_vector_matrice(cadrane_a, 4, n);
+	eliberare_vector_matrice(cadrane_b, 4, n);
+	eliberare_vector_matrice(s_part_a, 5, n);
+	eliberare_vector_matrice(s_part_b, 5, n);
 	eliberare_vector_matrice(m, 7, n);
 	eliberare_vector_matrice(c_part, 4, n);
 
