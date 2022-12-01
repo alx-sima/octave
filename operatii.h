@@ -3,6 +3,10 @@
 #ifndef OPERATII_H
 #define OPERATII_H
 
+// Aloca o matrice n x m si citeste de
+// la tastatura elementele sale.
+int **citire_matrice(int n, int m);
+
 // Afiseaza elementele matricei `a`.
 void printare_matrice(int **a, int n, int m);
 

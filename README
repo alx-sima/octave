@@ -12,7 +12,8 @@
     partitionarea, suma elementelor, produsul si ridicarea la putere.
 - strassen.c: Contine functii pentru calcularea produsului a 2 matrice folosind
     algoritmul lui Strassen.
-- utils.c:
+- utilitare.c: Contine functii cu caracter general, precum interschimbarea a 2
+    numere, sau calcularea unui numar (mod 10^4+1).
 
     Pentru fiecare fisier sursa (mai putin main) exista si un fisier antet, in
 care sunt declarate functiile apelate si in alte fisiere.

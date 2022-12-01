@@ -7,7 +7,7 @@
 #include "comenzi.h"
 #include "operatii.h"
 #include "strassen.h"
-#include "utils.h"
+#include "utilitare.h"
 
 // Verifica daca indicele `i` este valid (apartine `[0, n)`).
 static int e_index_valid(int i, int n)

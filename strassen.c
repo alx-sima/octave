@@ -5,7 +5,7 @@
 #include "alocari.h"
 #include "operatii.h"
 #include "strassen.h"
-#include "utils.h"
+#include "utilitare.h"
 
 #define NR_MAT_AJUT 7
 

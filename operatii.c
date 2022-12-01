@@ -5,7 +5,7 @@
 
 #include "alocari.h"
 #include "operatii.h"
-#include "utils.h"
+#include "utilitare.h"
 
 // Aloca si intoarce matricea `In`.
 static int **identitate(int n)
@@ -19,6 +19,18 @@ static int **identitate(int n)
 			// A(i,j) = 1 <=> i = j
 			a[i][j] = (i == j);
 		}
+	}
+
+	return a;
+}
+
+int **citire_matrice(int n, int m)
+{
+	int **a = alocare_matrice(n, m);
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < m; ++j)
+			scanf("%d", &a[i][j]);
 	}
 
 	return a;
