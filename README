@@ -8,7 +8,7 @@
     comanda si se apeleaza functia corespunzatoare din *comenzi.c*.
 - alocari.c: 
 - comenzi.c: 
-- operatii.c: Contine diferite operatii pe matrice: citirea, afisarea,          // TODO
+- operatii.c: Contine diferite operatii pe matrice: citirea, afisarea,
     partitionarea, suma elementelor, produsul si ridicarea la putere.
 - strassen.c: Contine functii pentru calcularea produsului a 2 matrice folosind
     algoritmul lui Strassen.
