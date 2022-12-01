@@ -1,2 +1,19 @@
 #### Sima Alexandru 312CA 2022-2023
 # Tema #2 - Simulator de Octave
+--------------------------------------------------------------------------------
+
+## Fisiere
+- main.c: Contine functia `main`, in care se aloca vectorii care sa stocheze
+    matricele si dimensiunile acestora, apoi se citeste de la tastatura o
+    comanda si se apeleaza functia corespunzatoare din *comenzi.c*.
+- alocari.c: 
+- comenzi.c: 
+- operatii.c: Contine diferite operatii pe matrice: citirea, afisarea,          // TODO
+    partitionarea, suma elementelor, produsul si ridicarea la putere.
+- strassen.c: Contine functii pentru calcularea produsului a 2 matrice folosind
+    algoritmul lui Strassen.
+- utils.c:
+
+    Pentru fiecare fisier sursa (mai putin main) exista si un fisier antet, in
+care sunt declarate functiile apelate si in alte fisiere.
+--------------------------------------------------------------------------------

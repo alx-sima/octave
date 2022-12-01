@@ -6,6 +6,7 @@
 #include "alocari.h"
 #include "comenzi.h"
 #include "operatii.h"
+#include "strassen.h"
 #include "utils.h"
 
 // Verifica daca indicele `i` este valid (apartine `[0, n)`).

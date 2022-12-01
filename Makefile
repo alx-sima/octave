@@ -3,7 +3,7 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -std=c99 -g
 
-OBJS=main.o alocari.o comenzi.o operatii.o utils.o
+OBJS=main.o alocari.o comenzi.o operatii.o strassen.o utils.o
 
 build: my_octave
 
