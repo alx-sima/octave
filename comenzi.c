@@ -10,72 +10,47 @@
 #include "utilitare.h"
 
 // Verifica daca indicele `i` este valid (apartine `[0, n)`).
-static int e_index_valid(int i, int n)
-{
-	return i >= 0 && i < n;
-}
+static int e_index_valid(int i, int n);
 
-static int citire_index(int n)
-{
-	int index;
-	scanf("%d", &index);
-
-	if (e_index_valid(index, n))
-		return index;
-	printf("No matrix with the given index\n");
-	return -1;
-}
+static int citire_index(int n);
 
 // Citeste 2 indecsi de matrice de la tastatura, apoi verifica daca sunt valizi
 // si daca cele 2 matrice pot fi inmultite (nr. de linii al primeia = nr. de
 // coloane ale celei de a 2-a).
-static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b)
-{
-	scanf("%d%d", a, b);
-	if (!(e_index_valid(*a, n) && e_index_valid(*b, n))) {
-		printf("No matrix with the given index\n");
-		return 0;
-	}
+static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b);
 
-	if (col[*a] != lin[*b]) {
-		printf("Cannot perform matrix multiplication\n");
-		return 0;
-	}
-
-	return 1;
-}
-
-void cmd_adaugare_matrice(int ****mat, int **lin, int **col, int *nr)
+int comanda_adaugare(int ****mat, int **lin, int **col, int *nr)
 {
 	int n, m;
 	scanf("%d%d", &n, &m);
 
 	int **a = citire_matrice(n, m);
-	// TODO
-	// if (!a) {}
+	if (!a)
+		return 1;
 
 	int ***mat_nou = inserare_mat(*mat, lin, col, nr, a, n, m);
 	if (!mat_nou)
-		return; // TODO
+		return 1;
 
 	*mat = mat_nou;
+	return 0;
 }
 
-void cmd_afisare_dimensiuni(int *lin, int *col, int nr)
+void comanda_dimensiuni(int *lin, int *col, int nr)
 {
 	int index = citire_index(nr);
 	if (index != -1)
 		printf("%d %d\n", lin[index], col[index]);
 }
 
-void cmd_afisare_matrice(int ***mat, int *lin, int *col, int nr)
+void comanda_afisare(int ***mat, int *lin, int *col, int nr)
 {
 	int index = citire_index(nr);
 	if (index != -1)
 		printare_matrice(mat[index], lin[index], col[index]);
 }
 
-void cmd_redimensionare_matrice(int ***matrice, int *lin, int *col, int nr)
+int comanda_redimensionare(int ***matrice, int *lin, int *col, int nr)
 {
 	int l, c;
 	int index;
@@ -83,62 +58,67 @@ void cmd_redimensionare_matrice(int ***matrice, int *lin, int *col, int nr)
 
 	scanf("%d", &l);
 	int *linii = (int *)malloc(l * sizeof(int));
-	// TODO:
 	if (!linii)
-		return;
+		return 1;
 
 	for (int i = 0; i < l; ++i)
 		scanf("%d", &linii[i]);
 
 	scanf("%d", &c);
 	int *coloane = (int *)malloc(c * sizeof(int));
-	// TODO:
+
 	if (!coloane) {
 		free(linii);
-		return;
+		return 1;
 	}
 
 	for (int i = 0; i < c; ++i)
 		scanf("%d", &coloane[i]);
 
 	if (index == -1) {
-		// TODO:
 		free(linii);
 		free(coloane);
-		return;
+		return 0;
 	}
 
 	int **aux = partitionare_matrice(matrice[index], linii, coloane, l, c);
-	// TODO
-	// if (!aux) {}
+	if (!aux) {
+		free(linii);
+		free(coloane);
+		return 1;
+	}
+
 	eliberare_matrice(matrice[index], lin[index]);
 	matrice[index] = aux;
 	lin[index] = l;
 	col[index] = c;
 	free(linii);
 	free(coloane);
+	return 0;
 }
 
-void cmd_inmultire_matrice(int ****mat, int **lin, int **col, int *nr)
+int comanda_produs(int ****mat, int **lin, int **col, int *nr)
 {
 	int x, y;
 	if (!citire_matrice_produs(*col, *lin, *nr, &x, &y))
-		return;
+		return 0;
 
 	int **c =
 		prod_matrice((*mat)[x], (*mat)[y], (*lin)[x], (*col)[x], (*col)[y]);
-	// if (!c) {}
+	if (!c)
+		return 1;
 	int ***mat_nou = inserare_mat(*mat, lin, col, nr, c, (*lin)[x], (*col)[y]);
-	// if (!mat_nou) {}
+	if (!mat_nou)
+		return 1;
 	*mat = mat_nou;
+	return 0;
 }
 
-void cmd_sortare_matrice(int ***mat, int *lin, int *col, int nr)
+int comanda_sortare(int ***mat, int *lin, int *col, int nr)
 {
 	int *sume = (int *)calloc(nr, sizeof(int));
-	// TODO:
 	if (!sume)
-		return;
+		return 1;
 
 	for (int i = 0; i < nr; ++i)
 		sume[i] = insumare_elemente(mat[i], lin[i], col[i]);
@@ -157,58 +137,64 @@ void cmd_sortare_matrice(int ***mat, int *lin, int *col, int nr)
 	}
 
 	free(sume);
+	return 0;
 }
 
-void cmd_transpunere_matrice(int ***mat, int *lin, int *col, int nr)
+int comanda_transpunere(int ***mat, int *lin, int *col, int nr)
 {
 	int index = citire_index(nr);
 	if (index == -1)
-		return;
+		return 0;
 
 	int n = lin[index];
 	int m = col[index];
 
 	int **transpusa = alocare_matrice(m, n);
+	if (!transpusa)
+		return 1;
 
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m; ++j)
 			transpusa[j][i] = mat[index][i][j];
 	}
 	eliberare_matrice(mat[index], n);
-	// TODO:
-	// if (!mat) {}
 	mat[index] = transpusa;
 	interschimba(&lin[index], &col[index]);
+	return 0;
 }
 
-void cmd_exp_matrice(int ***mat, int *lin, int *col, int nr)
+int comanda_exponentiere(int ***mat, int *lin, int *col, int nr)
 {
 	int index, exp;
 	index = citire_index(nr);
 	scanf("%d", &exp);
 
 	if (index == -1)
-		return;
+		return 0;
 
 	if (exp < 0) {
 		printf("Power should be positive\n");
-		return;
+		return 0;
 	}
 
 	if (lin[index] != col[index]) {
 		printf("Cannot perform matrix multiplication\n");
-		return;
+		return 0;
 	}
 
 	int **rez = exp_matrice(mat[index], lin[index], exp);
+	if (!rez)
+		return 1;
+
 	mat[index] = rez;
+	return 0;
 }
 
-void cmd_stergere_matrice(int ****mat, int **lin, int **col, int *nr)
+int comanda_stergere(int ****mat, int **lin, int **col, int *nr)
 {
 	int index = citire_index(*nr);
 	if (index == -1)
-		return;
+		return 0;
 
 	eliberare_matrice((*mat)[index], (*lin)[index]);
 
@@ -220,9 +206,10 @@ void cmd_stergere_matrice(int ****mat, int **lin, int **col, int *nr)
 	int ***mat_nou = stergere_mat(*mat, lin, col, nr);
 	// if (!mat_nou) {return;}
 	*mat = mat_nou;
+	return 0;
 }
 
-void cmd_eliberare_resurse(int ***mat, int *lin, int *col, int nr)
+void eliberare_resurse(int ***mat, int *lin, int *col, int nr)
 {
 	// Daca nu exista nicio matrice, toate
 	// resursele au fost deja dealocate.
@@ -237,18 +224,52 @@ void cmd_eliberare_resurse(int ***mat, int *lin, int *col, int nr)
 	free(col);
 }
 
-void cmd_produs_strassen(int ****mat, int **lin, int **col, int *nr)
+int comanda_prod_strassen(int ****mat, int **lin, int **col, int *nr)
 {
 	int x, y;
 
 	if (!citire_matrice_produs(*col, *lin, *nr, &x, &y))
-		return;
+		return 0;
+
 	int **rez = prod_strassen((*mat)[x], (*mat)[y], (*lin)[x]);
-	// TODO
 	if (!rez)
-		return;
+		return 1;
+
 	int ***mat_nou =
 		inserare_mat(*mat, lin, col, nr, rez, (*lin)[x], (*lin)[x]);
 	// if (!mat_nou) {}
 	*mat = mat_nou;
+	return 0;
+}
+
+static int e_index_valid(int i, int n)
+{
+	return i >= 0 && i < n;
+}
+
+static int citire_index(int n)
+{
+	int index;
+	scanf("%d", &index);
+
+	if (e_index_valid(index, n))
+		return index;
+	printf("No matrix with the given index\n");
+	return -1;
+}
+
+static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b)
+{
+	scanf("%d%d", a, b);
+	if (!(e_index_valid(*a, n) && e_index_valid(*b, n))) {
+		printf("No matrix with the given index\n");
+		return 0;
+	}
+
+	if (col[*a] != lin[*b]) {
+		printf("Cannot perform matrix multiplication\n");
+		return 0;
+	}
+
+	return 1;
 }

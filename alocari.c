@@ -41,6 +41,19 @@ void eliberare_vector_matrice(int **mat[], int nr, int n)
 		eliberare_matrice(mat[i], n);
 }
 
+int **copiere_matrice(int **sursa, int n, int m)
+{
+	int **rez = alocare_matrice(n, m);
+	if (!rez)
+		return NULL;
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < m; ++j)
+			rez[i][j] = sursa[i][j];
+	}
+	return rez;
+}
+
 int ***inserare_mat(int ***mat, int **lin, int **col, int *nr, int **a, int n,
 					int m)
 {

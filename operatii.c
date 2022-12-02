@@ -27,6 +27,8 @@ static int **identitate(int n)
 int **citire_matrice(int n, int m)
 {
 	int **a = alocare_matrice(n, m);
+	if (!a)
+		return NULL;
 
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < m; ++j)
@@ -87,37 +89,60 @@ int **prod_matrice(int **a, int **b, int n, int m, int o)
 	return c;
 }
 
-int **exp_matrice(int **x, int n, int k)
+int **exp_matrice(int **baza, int n, int k)
 {
-	if (k == 0)
-		return x;
+	int **x, **y, **aux;
 
-	int **y, **aux;
+	if (k == 0)
+		return baza;
+
+	// Se copiaza matricea originala, astfel incat, in
+	// caz de eroare, aceasta sa ramana nemodificata, pentru
+	// a fi eliberata corespunzator odata cu celelalte.
+	x = copiere_matrice(baza, n, n);
+	if (!x)
+		return NULL;
 	y = identitate(n);
-	if (!y)
-		return NULL; // TODO
+	if (!y) {
+		eliberare_matrice(x, n);
+		return NULL;
+	}
 
 	while (k > 1) {
 		if (k % 2 == 0) {
 			aux = prod_matrice(x, x, n, n, n);
 			eliberare_matrice(x, n);
 			x = aux;
+			if (!aux) {
+				eliberare_matrice(y, n);
+				return NULL;
+			}
+
 			k /= 2;
 		} else {
 			aux = prod_matrice(x, y, n, n, n);
 			eliberare_matrice(y, n);
 			y = aux;
+			if (!aux) {
+				eliberare_matrice(x, n);
+				return NULL;
+			}
 
 			aux = prod_matrice(x, x, n, n, n);
 			eliberare_matrice(x, n);
 			x = aux;
+			if (!aux) {
+				eliberare_matrice(y, n);
+				return NULL;
+			}
+
 			k = (k - 1) / 2;
 		}
 	}
 
 	aux = prod_matrice(x, y, n, n, n);
+	eliberare_matrice(baza, n);
 	eliberare_matrice(x, n);
 	eliberare_matrice(y, n);
-
 	return aux;
 }

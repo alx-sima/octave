@@ -18,7 +18,7 @@ int insumare_elemente(int **a, int n, int m);
 // Calculeaza produsul a 2 matrice `a` (nxm) si `b` (mxo).
 int **prod_matrice(int **a, int **b, int n, int m, int o);
 
-// Calculeaza X^k.
-int **exp_matrice(int **x, int n, int k);
+// Calculeaza `baza^k` in timp logaritmic.
+int **exp_matrice(int **baza, int n, int k);
 
 #endif // OPERATII_H

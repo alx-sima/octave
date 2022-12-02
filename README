@@ -6,7 +6,8 @@
 - main.c: Contine functia `main`, in care se aloca vectorii care sa stocheze
     matricele si dimensiunile acestora, apoi se citeste de la tastatura o
     comanda si se apeleaza functia corespunzatoare din *comenzi.c*.
-- alocari.c: 
+- alocari.c: Contine functii pentru alocarea, copierea si eliberarea unei
+matrice, cat si pentru inserarea/stergerea unei matrice intr-un vector.
 - comenzi.c: 
 - operatii.c: Contine diferite operatii pe matrice: citirea, afisarea,
     partitionarea, suma elementelor, produsul si ridicarea la putere.
