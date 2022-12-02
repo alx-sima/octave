@@ -71,6 +71,17 @@ int insumare_elemente(int **a, int n, int m)
 	return (int)s;
 }
 
+int **adunare_matrice(int **a, int **b, int n, int semn)
+{
+	int **c = alocare_matrice(n, n);
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j)
+			c[i][j] = modulo((long)a[i][j] + semn * b[i][j]);
+	}
+	return c;
+}
+
 int **prod_matrice(int **a, int **b, int n, int m, int o)
 {
 	int **c = alocare_matrice(n, o);
