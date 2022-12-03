@@ -90,6 +90,21 @@ int ***stergere_mat(int ***mat, int **lin, int **col, int *nr)
 	return mat_nou;
 }
 
+void eliberare_resurse(int ***mat, int *lin, int *col, int nr)
+{
+	// Daca nu exista nicio matrice, toate
+	// resursele au fost deja dealocate.
+	if (!nr)
+		return;
+
+	for (int i = 0; i < nr; ++i)
+		eliberare_matrice(mat[i], lin[i]);
+
+	free(mat);
+	free(lin);
+	free(col);
+}
+
 static int ***modif_nr_matrice(int ***mat, int **lin, int **col, int nr)
 {
 	int *lin_nou = (int *)realloc(*lin, nr * sizeof(int));

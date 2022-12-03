@@ -3,7 +3,7 @@
 #ifndef OPERATII_H
 #define OPERATII_H
 
-// Aloca o matrice n x m si citeste de
+// Aloca o matrice nxm si citeste de
 // la tastatura elementele sale.
 int **citire_matrice(int n, int m);
 

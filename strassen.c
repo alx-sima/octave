@@ -5,11 +5,13 @@
 #include "alocari.h"
 #include "operatii.h"
 #include "strassen.h"
-#include "utilitare.h"
 
 #define NR_CADRANE 4
 #define NR_SUME_PART 5
 #define NR_MAT_AJUT 7
+
+// Converteste caracterul `c` intr-o cifra.
+static inline int cifra(char c);
 
 // Imparte matricea `a` in 4 cadrane de `n` linii si coloane.
 static int impartire_cadrane(int **cadrane[], int **a, int n);
@@ -27,7 +29,7 @@ static int gen_mat_ajut(int **rez[], int **s_part_a[], int **s_part_b[],
 // Calculeaza in `rez` cadranele matricei-produs.
 static int gen_cadrane_finale(int **rez[], int **c_part[], int **m[], int n);
 
-// Construieste o matrice din cele 4 cadrane nXn ale ei (inversul functiei
+// Construieste o matrice din cele 4 cadrane nxn ale ei (inversul functiei
 // `impartire cadrane`).
 static int **reconstituire_matrice(int **c[], int n);
 
@@ -55,8 +57,10 @@ int **prod_strassen(int **a, int **b, int n)
 
 	if (impartire_cadrane(cadrane_a, a, n))
 		return NULL;
-	if (impartire_cadrane(cadrane_b, b, n))
+	if (impartire_cadrane(cadrane_b, b, n)) {
 		eliberare_vector_matrice(cadrane_a, NR_CADRANE, n);
+		return NULL;
+	}
 
 	if (gen_sume_part(s_part_a, cadrane_a, n, "02021", "33103", "+++--",
 					  NR_SUME_PART)) {
@@ -79,7 +83,6 @@ int **prod_strassen(int **a, int **b, int n)
 	eliberare_vector_matrice(cadrane_b, NR_CADRANE, n);
 	eliberare_vector_matrice(s_part_a, NR_SUME_PART, n);
 	eliberare_vector_matrice(s_part_b, NR_SUME_PART, n);
-
 	if (e_eroare)
 		return NULL;
 
@@ -92,34 +95,52 @@ int **prod_strassen(int **a, int **b, int n)
 
 	eliberare_vector_matrice(m, NR_MAT_AJUT, n);
 	eliberare_vector_matrice(c_part, NR_CADRANE, n);
-
 	if (e_eroare)
 		return NULL;
 
-	return reconstituire_matrice(c, n);
+	int **rez = reconstituire_matrice(c, n);
+	eliberare_vector_matrice(c, 4, n);
+	return rez;
+}
+
+static inline int cifra(char c)
+{
+	return c - '0';
 }
 
 static int impartire_cadrane(int **cadrane[], int **a, int n)
 {
-	int *temp = (int *)malloc(n * 2 * sizeof(int));
-	if (!temp)
+	int *v_lin_col = (int *)malloc(n * 2 * sizeof(int));
+	if (!v_lin_col)
 		return 0;
 
 	for (int i = 0; i < n * 2; ++i)
-		temp[i] = i;
+		v_lin_col[i] = i;
 
-	// !!! Doamne-ajuta !!!
+	// Exista 4 cadrane, numerotate de la 0 la 3.
+	// Codificarea lor in baza 2 ne ajuta sa facem impartirea mai usor:
+	// 00 | 01
+	// -------
+	// 10 | 11
+	// Astfel, daca primul bit (`i >> 1 & 1`) este 1, se vor selecta ultimele
+	// `n` linii in loc de primele, iar daca al 2-lea (`i >> 1`) este 1, se va
+	// proceda la fel pentru coloane.
+	// Pentru a selecta liniile/coloanele, se foloseste operatia de
+	// partitionare: se aloca un vector cu valorile 1..2*n. Daca bitul respectiv
+	// e 1, se transmite vectorul incepand de la pozitia `n` (a 2-a jumatate).
 	for (int i = 0; i < NR_CADRANE; ++i) {
-		cadrane[i] = partitionare_matrice(a, temp + (i >> 1 & 1) * n,
-										  temp + (i & 1) * n, n, n);
+		int deplasare_x = (i >> 1 & 1) * n;
+		int deplasare_y = (i & 1) * n;
+		cadrane[i] = partitionare_matrice(a, v_lin_col + deplasare_x,
+										  v_lin_col + deplasare_y, n, n);
 		if (!cadrane[i]) {
 			eliberare_vector_matrice(cadrane, i, n);
-			free(temp);
+			free(v_lin_col);
 			return 1;
 		}
 	}
 
-	free(temp);
+	free(v_lin_col);
 	return 0;
 }
 
@@ -127,7 +148,7 @@ static int gen_sume_part(int **rez[], int **v[], int n, const char st[],
 						 const char dr[], const char semn[], int nr)
 {
 	for (int i = 0; i < nr; ++i) {
-		rez[i] = adunare_matrice(v[st[i] - '0'], v[dr[i] - '0'], n,
+		rez[i] = adunare_matrice(v[cifra(st[i])], v[cifra(dr[i])], n,
 								 semn[i] == '+' ? 1 : -1);
 		if (!rez[i]) {
 			eliberare_vector_matrice(rez, i, n);
@@ -179,18 +200,17 @@ static int gen_cadrane_finale(int **rez[], int **c_part[], int **m[], int n)
 static int **reconstituire_matrice(int **c[], int n)
 {
 	int **a = alocare_matrice(n * 2, n * 2);
-	if (!a) {
-		eliberare_vector_matrice(c, NR_CADRANE, n);
+	if (!a)
 		return NULL;
-	}
 
 	for (int i = 0; i < NR_CADRANE; ++i) {
 		for (int j = 0; j < n; ++j) {
 			for (int k = 0; k < n; ++k)
+				// Se foloseste aceeasi impartire pe cadrane ca la
+				// `impartire_cadrane()`.
 				a[j + n * (i >> 1 & 1)][k + n * (i & 1)] = c[i][j][k];
 		}
 	}
 
-	eliberare_vector_matrice(c, NR_CADRANE, n);
 	return a;
 }

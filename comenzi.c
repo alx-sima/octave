@@ -7,17 +7,21 @@
 #include "comenzi.h"
 #include "operatii.h"
 #include "strassen.h"
-#include "utilitare.h"
 
 // Verifica daca indicele `i` este valid (apartine `[0, n)`).
-static int e_index_valid(int i, int n);
+static inline int e_index_valid(int i, int n);
 
+// Citeste un index de la tastatura. Afiseaza un mesaj de
+// eroare si returneaza -1 daca nu este valid.
 static int citire_index(int n);
 
 // Citeste 2 indecsi de matrice de la tastatura, apoi verifica daca sunt valizi
 // si daca cele 2 matrice pot fi inmultite (nr. de linii al primeia = nr. de
 // coloane ale celei de a 2-a).
 static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b);
+
+// Interschimba 2 numere.
+static void interschimba(int *a, int *b);
 
 int comanda_adaugare(int ****mat, int **lin, int **col, int *nr)
 {
@@ -107,6 +111,7 @@ int comanda_produs(int ****mat, int **lin, int **col, int *nr)
 		prod_matrice((*mat)[x], (*mat)[y], (*lin)[x], (*col)[x], (*col)[y]);
 	if (!c)
 		return 1;
+
 	int ***mat_nou = inserare_mat(*mat, lin, col, nr, c, (*lin)[x], (*col)[y]);
 	if (!mat_nou)
 		return 1;
@@ -157,13 +162,14 @@ int comanda_transpunere(int ***mat, int *lin, int *col, int nr)
 		for (int j = 0; j < m; ++j)
 			transpusa[j][i] = mat[index][i][j];
 	}
+
+	interschimba(&lin[index], &col[index]);
 	eliberare_matrice(mat[index], n);
 	mat[index] = transpusa;
-	interschimba(&lin[index], &col[index]);
 	return 0;
 }
 
-int comanda_exponentiere(int ***mat, int *lin, int *col, int nr)
+int comanda_putere(int ***mat, int *lin, int *col, int nr)
 {
 	int index, exp;
 	index = citire_index(nr);
@@ -177,6 +183,7 @@ int comanda_exponentiere(int ***mat, int *lin, int *col, int nr)
 		return 0;
 	}
 
+	// Matricea trebuie sa fie patratica.
 	if (lin[index] != col[index]) {
 		printf("Cannot perform matrix multiplication\n");
 		return 0;
@@ -203,25 +210,14 @@ int comanda_stergere(int ****mat, int **lin, int **col, int *nr)
 		(*lin)[i] = (*lin)[i + 1];
 		(*col)[i] = (*col)[i + 1];
 	}
+
 	int ***mat_nou = stergere_mat(*mat, lin, col, nr);
-	// if (!mat_nou) {return;}
+	// Daca nr = 1, `mat`, `lin` si `col` vor fi toti dealocati
+	// si cu valoarea NULL, care nu este insa o eroare.
+	if (!mat_nou && *nr == 1)
+		return 1;
 	*mat = mat_nou;
 	return 0;
-}
-
-void eliberare_resurse(int ***mat, int *lin, int *col, int nr)
-{
-	// Daca nu exista nicio matrice, toate
-	// resursele au fost deja dealocate.
-	if (!nr)
-		return;
-
-	for (int i = 0; i < nr; ++i)
-		eliberare_matrice(mat[i], lin[i]);
-
-	free(mat);
-	free(lin);
-	free(col);
 }
 
 int comanda_prod_strassen(int ****mat, int **lin, int **col, int *nr)
@@ -237,12 +233,13 @@ int comanda_prod_strassen(int ****mat, int **lin, int **col, int *nr)
 
 	int ***mat_nou =
 		inserare_mat(*mat, lin, col, nr, rez, (*lin)[x], (*lin)[x]);
-	// if (!mat_nou) {}
+	if (!mat_nou)
+		return 1;
 	*mat = mat_nou;
 	return 0;
 }
 
-static int e_index_valid(int i, int n)
+static inline int e_index_valid(int i, int n)
 {
 	return i >= 0 && i < n;
 }
@@ -272,4 +269,11 @@ static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b)
 	}
 
 	return 1;
+}
+
+static void interschimba(int *a, int *b)
+{
+	*a ^= *b;
+	*b ^= *a;
+	*a ^= *b;
 }

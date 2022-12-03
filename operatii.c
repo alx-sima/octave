@@ -5,24 +5,13 @@
 
 #include "alocari.h"
 #include "operatii.h"
-#include "utilitare.h"
 
-// Aloca si intoarce matricea `In`.
-static int **identitate(int n)
-{
-	int **a = alocare_matrice(n, n);
-	if (!a)
-		return NULL;
+#define NR_MOD 10007
 
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			// A(i,j) = 1 <=> i = j
-			a[i][j] = (i == j);
-		}
-	}
+// Aloca si intoarce matricea identitate `In`.
+static int **identitate(int n);
 
-	return a;
-}
+static int modulo(long x);
 
 int **citire_matrice(int n, int m)
 {
@@ -92,7 +81,7 @@ int **prod_matrice(int **a, int **b, int n, int m, int o)
 		for (int j = 0; j < o; ++j) {
 			long x = 0;
 			for (int k = 0; k < m; ++k)
-				x = modulo(x + modulo((long)a[i][k] * b[k][j]));
+				x = modulo(x + a[i][k] * b[k][j]);
 			c[i][j] = modulo(x);
 		}
 	}
@@ -120,17 +109,7 @@ int **exp_matrice(int **baza, int n, int k)
 	}
 
 	while (k > 1) {
-		if (k % 2 == 0) {
-			aux = prod_matrice(x, x, n, n, n);
-			eliberare_matrice(x, n);
-			x = aux;
-			if (!aux) {
-				eliberare_matrice(y, n);
-				return NULL;
-			}
-
-			k /= 2;
-		} else {
+		if (k % 2 == 1) {
 			aux = prod_matrice(x, y, n, n, n);
 			eliberare_matrice(y, n);
 			y = aux;
@@ -138,22 +117,47 @@ int **exp_matrice(int **baza, int n, int k)
 				eliberare_matrice(x, n);
 				return NULL;
 			}
-
-			aux = prod_matrice(x, x, n, n, n);
-			eliberare_matrice(x, n);
-			x = aux;
-			if (!aux) {
-				eliberare_matrice(y, n);
-				return NULL;
-			}
-
-			k = (k - 1) / 2;
+			--k;
 		}
+		aux = prod_matrice(x, x, n, n, n);
+		eliberare_matrice(x, n);
+		x = aux;
+		if (!aux) {
+			eliberare_matrice(y, n);
+			return NULL;
+		}
+
+		k /= 2;
 	}
 
 	aux = prod_matrice(x, y, n, n, n);
-	eliberare_matrice(baza, n);
 	eliberare_matrice(x, n);
 	eliberare_matrice(y, n);
+	if (aux)
+		eliberare_matrice(baza, n);
 	return aux;
+}
+
+static int **identitate(int n)
+{
+	int **a = alocare_matrice(n, n);
+	if (!a)
+		return NULL;
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			// A[i,j] = 1 doar daca i = j
+			a[i][j] = (i == j);
+		}
+	}
+
+	return a;
+}
+
+static int modulo(long x)
+{
+	x %= NR_MOD;
+	if (x < 0)
+		return (int)(x + NR_MOD);
+	return (int)x;
 }

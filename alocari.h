@@ -23,4 +23,7 @@ int ***inserare_mat(int ***mat, int **lin, int **col, int *nr, int **a, int n,
 // apoi returneaza noua lista (sau NULL daca a intervenit o eroare).
 int ***stergere_mat(int ***mat, int **lin, int **col, int *nr);
 
+// Dealoca toate matricele din lista, apoi lista insasi.
+void eliberare_resurse(int ***mat, int *lin, int *col, int nr);
+
 #endif // ALOCARI_H

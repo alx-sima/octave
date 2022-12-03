@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "alocari.h"
 #include "comenzi.h"
 
 int main(void)
@@ -14,7 +15,7 @@ int main(void)
 	int e_eroare = 0;
 	char operatie;
 
-	while (scanf(" %c", &operatie)) {
+	while (scanf(" %c", &operatie) != EOF) {
 		switch (operatie) {
 		case 'L':
 			e_eroare =
@@ -42,8 +43,7 @@ int main(void)
 				comanda_transpunere(matrice, nr_linii, nr_coloane, nr_mat);
 			break;
 		case 'R':
-			e_eroare =
-				comanda_exponentiere(matrice, nr_linii, nr_coloane, nr_mat);
+			e_eroare = comanda_putere(matrice, nr_linii, nr_coloane, nr_mat);
 			break;
 		case 'F':
 			e_eroare =
@@ -60,6 +60,8 @@ int main(void)
 			printf("Unrecognized command\n");
 		}
 
+		// Daca a intervenit o eroare, se elibereaza toate
+		// matricele si se inchide programul.
 		if (e_eroare) {
 			fprintf(stderr,
 					"A intervenit o eroare in timpul alocarii memoriei\n");
@@ -67,4 +69,7 @@ int main(void)
 			return EXIT_FAILURE;
 		}
 	}
+
+	eliberare_resurse(matrice, nr_linii, nr_coloane, nr_mat);
+	return 0;
 }
