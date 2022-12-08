@@ -89,7 +89,7 @@ int **prod_matrice(int **a, int **b, int n, int m, int o)
 	return c;
 }
 
-int **exp_matrice(int **baza, int n, int k)
+int **putere_matrice(int **baza, int n, int k)
 {
 	int **x, **y, **aux;
 
@@ -146,7 +146,8 @@ static int **identitate(int n)
 
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < n; ++j) {
-			// A[i,j] = 1 doar daca i = j
+			// A[i,j] = 1; i = j
+			// A[i,j] = 0; i != j
 			a[i][j] = (i == j);
 		}
 	}

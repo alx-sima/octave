@@ -20,6 +20,11 @@ static int citire_index(int n);
 // coloane ale celei de a 2-a).
 static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b);
 
+// Aloca 2 vectori si citeste in ei liniile si coloanele pentru operatia de
+// redimensionare. Returneaza 1 daca intervine o eroare.
+static int citire_indecsi_redimensionare(int **lin, int *nr_lin, int **col,
+										 int *nr_col);
+
 // Interschimba 2 numere.
 static void interschimba(int *a, int *b);
 
@@ -56,28 +61,14 @@ void comanda_afisare(int ***mat, int *lin, int *col, int nr)
 
 int comanda_redimensionare(int ***matrice, int *lin, int *col, int nr)
 {
+	int *linii;
+	int *coloane;
 	int l, c;
 	int index;
 	index = citire_index(nr);
 
-	scanf("%d", &l);
-	int *linii = (int *)malloc(l * sizeof(int));
-	if (!linii)
+	if (citire_indecsi_redimensionare(&linii, &l, &coloane, &c))
 		return 1;
-
-	for (int i = 0; i < l; ++i)
-		scanf("%d", &linii[i]);
-
-	scanf("%d", &c);
-	int *coloane = (int *)malloc(c * sizeof(int));
-
-	if (!coloane) {
-		free(linii);
-		return 1;
-	}
-
-	for (int i = 0; i < c; ++i)
-		scanf("%d", &coloane[i]);
 
 	if (index == -1) {
 		free(linii);
@@ -97,6 +88,7 @@ int comanda_redimensionare(int ***matrice, int *lin, int *col, int nr)
 	lin[index] = l;
 	col[index] = c;
 	free(linii);
+
 	free(coloane);
 	return 0;
 }
@@ -189,7 +181,7 @@ int comanda_putere(int ***mat, int *lin, int *col, int nr)
 		return 0;
 	}
 
-	int **rez = exp_matrice(mat[index], lin[index], exp);
+	int **rez = putere_matrice(mat[index], lin[index], exp);
 	if (!rez)
 		return 1;
 
@@ -269,6 +261,33 @@ static int citire_matrice_produs(int *col, int *lin, int n, int *a, int *b)
 	}
 
 	return 1;
+}
+
+static int citire_indecsi_redimensionare(int **lin, int *nr_lin, int **col,
+										 int *nr_col)
+{
+	scanf("%d", nr_lin);
+	int *linii = (int *)malloc(*nr_lin * sizeof(int));
+	if (!linii)
+		return 1;
+
+	for (int i = 0; i < *nr_lin; ++i)
+		scanf("%d", &linii[i]);
+
+	scanf("%d", nr_col);
+	int *coloane = (int *)malloc(*nr_col * sizeof(int));
+
+	if (!coloane) {
+		free(linii);
+		return 1;
+	}
+
+	for (int i = 0; i < *nr_col; ++i)
+		scanf("%d", &coloane[i]);
+
+	*lin = linii;
+	*col = coloane;
+	return 0;
 }
 
 static void interschimba(int *a, int *b)

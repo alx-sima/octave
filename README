@@ -124,6 +124,7 @@ valori, fara a le leakui pe cele vechi.
 verifica restul.
 - Rezultatul operatiei este `x * y`.
 
+
 ### Algoritmul lui Strassen
 - Algoritmul lui Strassen realizeaza produsul a 2 matrice cu dimensiuni puteri
 ale lui 2.
